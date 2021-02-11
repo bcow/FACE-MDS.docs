@@ -1,0 +1,50 @@
+# One to One Plots {-}
+
+## NPP {-}
+```{r, warning = FALSE, echo = FALSE}
+NPP_out_long_a <- load_output_for_plot(runs, treatment = "amb", input_id = 1000008119, var = "NPP")
+NPP_out_long_e <- load_output_for_plot(runs, treatment = "ele", input_id = 1000008120, var = "NPP")
+NPP_out_long <- bind_rows(NPP_out_long_a, NPP_out_long_e) %>% distinct()
+
+NPP_out_wide <- NPP_out_long %>% select(-variable) %>% 
+  spread(model, value) %>% 
+  gather(key = "model", value = "value", -year, -treatment, -Observed)
+```
+
+```{r}
+p <- ggplot(NPP_out_wide) + 
+  geom_abline(intercept = 0, slope = 1, size = 1, linetype ="longdash", lineend = "round") + 
+  geom_line(aes(x = Observed, y = value, color = model, group = model)) + 
+  facet_grid(cols = vars(treatment))
+p <- p + theme_bw() + scale_colour_manual(name = models, values = ModelColors)
+p <- p + xlab("Observed") + ylab("Predicted")
+p <- p + theme(axis.text=element_text(size=18), 
+               axis.title=element_text(size=20,face="bold"),
+               legend.position="none")
+p
+```
+
+
+## LAI {-}
+```{r, warning = FALSE, echo = FALSE}
+LAI_out_long_a <- load_output_for_plot(runs, treatment = "amb", input_id = 1000008119, var = "LAI")
+LAI_out_long_e <- load_output_for_plot(runs, treatment = "ele", input_id = 1000008120, var = "LAI")
+LAI_out_long <- bind_rows(LAI_out_long_a, LAI_out_long_e) %>% distinct()
+
+LAI_out_wide <- LAI_out_long %>% select(-variable) %>% 
+  spread(model, value) %>% 
+  gather(key = "model", value = "value", -year, -treatment, -Observed)
+```
+
+```{r}
+p <- ggplot(LAI_out_wide) + 
+  geom_abline(intercept = 0, slope = 1, size = 1, linetype ="longdash", lineend = "round") + 
+  geom_line(aes(x = Observed, y = value, color = model, group = model)) + 
+  facet_grid(cols = vars(treatment))
+p <- p + theme_bw() + scale_colour_manual(name = models, values = ModelColors)
+p <- p + xlab("Observed") + ylab("Predicted")
+p <- p + theme(axis.text=element_text(size=18), 
+               axis.title=element_text(size=20,face="bold"),
+               legend.position="none")
+p
+```

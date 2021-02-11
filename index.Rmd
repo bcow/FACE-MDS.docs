@@ -1,0 +1,13 @@
+--- 
+title: "FACE Benchmarking Project Documentation"
+author: "Betsy Cowdery"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+documentclass: book
+link-citations: yes
+description: "Documentation for the FACE Benchmarking Project"
+---
+
+# Documentation {-}
+
+This is all the documentation that will also hopefully become the paper. 

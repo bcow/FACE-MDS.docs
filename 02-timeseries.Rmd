@@ -1,0 +1,61 @@
+# Timeseries Plots {-}
+
+```{r, echo = FALSE}
+################################################################################
+# Set up all the colors for the plots
+
+models <-      c("Observed", "LPJGUESS", "DALEC",   "ED2",     "JULES",   "SIPNET")
+ModelColors <- c("black",    "#377EB8",  "#4DAF4A", "#984EA3", "#ff7f00", "#e41a1c")
+names(ModelColors) <- models
+
+treatments <-      c("amb",     "ele",     "CRU")
+treatmentColors <- c("#018571", "#7b3294", "#80cdc1")
+names(treatmentColors) <- treatments
+```
+
+
+
+## NPP {-}
+
+```{r, warning = FALSE, echo = FALSE}
+NPP_out_long_a <- load_output_for_plot(runs, treatment = "amb", input_id = 1000008119, var = "NPP")
+NPP_out_long_e <- load_output_for_plot(runs, treatment = "ele", input_id = 1000008120, var = "NPP")
+NPP_out_long <- bind_rows(NPP_out_long_a, NPP_out_long_e)
+
+NPP_out_plot <- 
+  ggplot(NPP_out_long, aes(year, value)) + 
+  geom_smooth(aes(colour=model),se = FALSE, size = 2) +
+  labs(y="NPP", x = "Year") +
+  scale_colour_manual(name = models, values = ModelColors) + 
+  theme(axis.text=element_text(size=18), 
+        axis.title=element_text(size=20,face="bold"),
+        plot.title = element_text(size = rel(2))
+  ) + 
+  facet_grid(cols = vars(as.factor(treatment)))
+
+NPP_out_plot
+```
+
+## LAI {-}
+
+```{r, warning = FALSE, echo = FALSE}
+inputs %>% filter(name == "LAI")
+
+LAI_out_long_a <- load_output_for_plot(runs, treatment = "amb", input_id = 1000008119, var = "LAI")
+LAI_out_long_e <- load_output_for_plot(runs, treatment = "ele", input_id = 1000008120, var = "LAI")
+LAI_out_long <- bind_rows(LAI_out_long_a, LAI_out_long_e)
+
+LAI_out_plot <- 
+  ggplot(LAI_out_long, aes(year, value)) + 
+  geom_smooth(aes(colour=model),se = FALSE, size = 2) +
+  labs(y="LAI", x = "Year") +
+  scale_colour_manual(name = models, values = ModelColors) + 
+  theme(axis.text=element_text(size=18), 
+        axis.title=element_text(size=20,face="bold"),
+        plot.title = element_text(size = rel(2))
+  ) + 
+  facet_grid(cols = vars(as.factor(treatment)))
+
+suppressWarnings(LAI_out_plot)
+```
+

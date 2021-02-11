@@ -1,0 +1,71 @@
+# Setup {-}
+
+```{r, echo = FALSE, message=FALSE, warning=FALSE}
+suppressPackageStartupMessages(library(FACE.helpers))
+```
+
+```{r, setup}
+##########################
+# Get all the ids for BETY 
+
+# load in the current json file
+ids <- rjson::fromJSON(file = "/fs/data3/ecowdery/FACE/FACE-MDS_runs/ids.json")
+
+# run ids
+runs <- dplyr::bind_rows(ids$runs, .id = "model") %>% 
+  gather(key="treatment", value ="workflow_id", -"model")
+
+# I selected these variables because they are the most common / interesting
+# But there may be more that we want to include in the future ...
+vars <- c("NEE", "TotalResp", "Qle", "NPP", "LAI", "SoilMoistFrac", "TotLivBiom")
+
+# input ids
+input_info <- dplyr::bind_rows(ids$inputs) %>% 
+  gather(key = "input_name", value = "input_id")
+
+bety <- betyConnect("/fs/data3/ecowdery/pecan/web/config.php")
+
+inputs <- tbl(bety, "inputs") %>% filter(id %in% !!input_info$input_id) %>% select(id, format_id) %>% 
+  left_join(tbl(bety,"formats_variables") %>% select(variable_id, format_id)) %>% 
+  left_join(tbl(bety, "variables") %>% select(id, name), by = c("variable_id" = "id")) %>% 
+  collect() %>% rename("input_id" = "id") %>% 
+  mutate(input_id = as.numeric(input_id),
+         format_id = as.numeric(format_id),
+         variable_id = as.numeric(variable_id)) %>%
+  left_join(input_info)
+
+```
+
+
+```{r, echo = FALSE, setup_bm}
+################################################################################
+# Load in benchmarking scores
+# Beyond this point, running the code should update results with whatever
+# benchmarks I've completed
+
+output_prefix <- "/fs/data2/output/PEcAn_"
+
+bm_list <- list()
+for(i in 1:dim(runs)[1]){
+  if(!is.na(runs$workflow_id[i])){
+    # The benchmarking directory
+    bm_dir <- paste0(output_prefix, runs$workflow_id[i], "/benchmarking")
+    if(length(dir(bm_dir)) > 0){
+      for(j in seq_along(dir(bm_dir))){
+        bm_file <- file.path(dir(bm_dir, full.names = TRUE)[j], "benchmarking.output.Rdata")
+        load(bm_file) # should load an object called result.out
+
+        bm_list <- append(bm_list, list(data.frame( input_id = dir(bm_dir)[j], workflow_id = runs$workflow_id[i], result.out$bench.results)))
+        remove(result.out)
+      }
+    }
+  }
+}
+bms <- as.data.frame(do.call(rbind,bm_list), stringsAsFactors = FALSE)
+bm_scores <- full_join(runs, bms, by = "workflow_id") %>%
+  mutate(model_treatment = paste(model, treatment))
+
+bm_scores <- bm_scores %>% filter(input_id != 1000008119) %>% filter(input_id != 1000008120)
+remove(bms)
+remove(bm_list)
+```

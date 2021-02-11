@@ -1,0 +1,12 @@
+book_filename: "FACE.docs.book"
+chapter_name: ""
+output_dir: docs
+delete_merged_file: true
+rmd_files: [
+  "index.Rmd",
+  "01-setup.Rmd",
+  "02-timeseries.Rmd",
+  "03-one-to-one.Rmd"
+  ]
+clean: [packages.bib, bookdown.bbl]
+new_session: no
